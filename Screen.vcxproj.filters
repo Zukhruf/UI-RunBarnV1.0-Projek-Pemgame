@@ -111,5 +111,11 @@
     <Image Include="SFX.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="leaderboardScreen.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="creditScreen.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

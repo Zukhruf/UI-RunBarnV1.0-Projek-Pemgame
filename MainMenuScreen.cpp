@@ -14,6 +14,8 @@ void MainMenuScreen::Init()
 	BuildLogo();
 	BuildBtn();
 	BuildBtnSetting();
+	BuildLeaderboard();
+	BuildCredit();
 	this->program = BuildShader("shader.vert", "shader.frag");
 	InputMapping("SelectButton", SDLK_RETURN);
 	InputMapping("NextButton", SDLK_DOWN);
@@ -64,8 +66,6 @@ void MainMenuScreen::Update(float deltaTime)
 		}
 		if (IsKeyUp("BackButton")) {
 			this->status = Status::MAIN_MENU;
-			SDL_Quit();
-			exit(0);
 		}
 	}
 	if (Status::LEADERBOARD == status)
@@ -137,6 +137,14 @@ void MainMenuScreen::Render()
 	if (Status::SETTING == status)
 	{
 		DrawBtnSetting();
+	}
+	if (Status::LEADERBOARD == status)
+	{
+		DrawLeaderboard();
+	}
+	if (Status::CREDIT == status)
+	{
+		DrawCredit();
 	}
 }
 
@@ -435,18 +443,156 @@ void MainMenuScreen::DrawBtnSetting()
 
 void MainMenuScreen::BuildLeaderboard()
 {
+	string leaderboardScreen[NUM_LEADERBOARD_SCREEN] = { "leaderboardScreen.png" };
+
+	glGenTextures(1, &LeaderboardTex[0]);
+
+	for (int i = 0; i < NUM_LEADERBOARD_SCREEN; i++) {
+		// Load and create a texture 
+		glBindTexture(GL_TEXTURE_2D, LeaderboardTex[i]); // All upcoming GL_TEXTURE_2D operations now have effect on our texture object
+
+													 // Set texture filtering
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Load, create texture 
+		int width, height;
+		unsigned char* image = SOIL_load_image(leaderboardScreen[i].c_str(), &width, &height, 0, SOIL_LOAD_RGBA);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		SOIL_free_image_data(image);
+		glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+
+										 // Set up vertex data (and buffer(s)) and attribute pointers
+		LeaderboardWidth[i] = (float)width;
+		LeaderboardHeight[i] = (float)height;
+	}
+	GLfloat vertices[] = {
+		// Positions	// Texture Coords
+		1,  1,			1.0f, 1.0f, // Bottom Right
+		1,  0,			1.0f, 0.0f, // Top Right
+		0,  0,			0.0f, 0.0f, // Top Left
+		0,  1,			0.0f, 1.0f  // Bottom Left 
+	};
+
+
+	glGenVertexArrays(1, &LeaderboardVAO);
+	glGenBuffers(1, &LeaderboardVBO);
+	glBindVertexArray(LeaderboardVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, LeaderboardVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void MainMenuScreen::DrawLeaderboard()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Bind Textures using texture units
+	int texture_id[NUM_LEADERBOARD_SCREEN] = { GL_TEXTURE8 };
+	// Activate shader
+	UseShader(this->program);
+	glUniform1i(glGetUniformLocation(this->program, "text"), 0);
+
+	glBindVertexArray(LeaderboardVAO);
+	for (int i = 0; i < NUM_LEADERBOARD_SCREEN; i++) {
+
+		glActiveTexture(texture_id[i]);
+		glBindTexture(GL_TEXTURE_2D, LeaderboardTex[i]);
+		glUniform1i(glGetUniformLocation(this->program, "ourTexture"), i + 8);
+
+		mat4 model;
+		model = translate(model, vec3((GetScreenWidth()) / 6.0f, (i + 1) * 0, 0.0f));
+		model = scale(model, vec3((GetScreenWidth()/1.5f), LeaderboardHeight[i], 1));
+		glUniformMatrix4fv(glGetUniformLocation(this->program, "model"), 1, GL_FALSE, value_ptr(model));
+
+		glDrawArrays(GL_QUADS, 0, 4);
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_BLEND);
 }
 
 void MainMenuScreen::BuildCredit()
 {
+	string creditScreen[NUM_CREDIT_SCREEN] = { "creditScreen.png" };
+
+	glGenTextures(1, &CreditScreenTex[0]);
+
+	for (int i = 0; i < NUM_CREDIT_SCREEN; i++) {
+		// Load and create a texture 
+		glBindTexture(GL_TEXTURE_2D, CreditScreenTex[i]); // All upcoming GL_TEXTURE_2D operations now have effect on our texture object
+
+														 // Set texture filtering
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Load, create texture 
+		int width, height;
+		unsigned char* image = SOIL_load_image(creditScreen[i].c_str(), &width, &height, 0, SOIL_LOAD_RGBA);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		SOIL_free_image_data(image);
+		glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+
+										 // Set up vertex data (and buffer(s)) and attribute pointers
+		CreditWidth[i] = (float)width;
+		CreditHeight[i] = (float)height;
+	}
+	GLfloat vertices[] = {
+		// Positions	// Texture Coords
+		1,  1,			1.0f, 1.0f, // Bottom Right
+		1,  0,			1.0f, 0.0f, // Top Right
+		0,  0,			0.0f, 0.0f, // Top Left
+		0,  1,			0.0f, 1.0f  // Bottom Left 
+	};
+
+
+	glGenVertexArrays(1, &CreditVAO);
+	glGenBuffers(1, &CreditVBO);
+	glBindVertexArray(CreditVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, CreditVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void MainMenuScreen::DrawCredit()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Bind Textures using texture units
+	int texture_id[NUM_CREDIT_SCREEN] = { GL_TEXTURE9 };
+	// Activate shader
+	UseShader(this->program);
+	glUniform1i(glGetUniformLocation(this->program, "text"), 0);
+
+	glBindVertexArray(CreditVAO);
+	for (int i = 0; i < NUM_LEADERBOARD_SCREEN; i++) {
+
+		glActiveTexture(texture_id[i]);
+		glBindTexture(GL_TEXTURE_2D, CreditScreenTex[i]);
+		glUniform1i(glGetUniformLocation(this->program, "ourTexture"), i + 9);
+
+		mat4 model;
+		model = translate(model, vec3((GetScreenWidth()) / 3.5f, (i + 1) * 0, 0.0f));
+		model = scale(model, vec3(CreditWidth[i]/1.52f, CreditHeight[i]/1.52f, 1));
+		glUniformMatrix4fv(glGetUniformLocation(this->program, "model"), 1, GL_FALSE, value_ptr(model));
+
+		glDrawArrays(GL_QUADS, 0, 4);
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_BLEND);
 }
 
 int main(int argc, char** argv) {

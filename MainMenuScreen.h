@@ -22,6 +22,8 @@ using namespace glm;
 #define NUM_BUTTON 5
 #define NUM_LOGO 1
 #define NUM_BTN_SETTING 2
+#define NUM_LEADERBOARD_SCREEN 1
+#define NUM_CREDIT_SCREEN 1
 
 class MainMenuScreen :
 	public Layar::Screen {
@@ -36,13 +38,13 @@ public:
 private:
 	GLuint BtnTexture[NUM_BUTTON], BtnHoverTexture[NUM_BUTTON], LogoTexture[NUM_LOGO], 
 		BtnSettingTex[NUM_BTN_SETTING], BtnSettingHoverTex[NUM_BTN_SETTING], BtnSettingChoosenTex[NUM_BTN_SETTING],
-		LeaderboardTex, LeaderboardVAO, LeaderboardVBO,
-		BtnSettingVAO, BtnSettingVBO, BtnVAO, BtnVBO, LogoVAO, LogoVBO, LogoEBO, program;
+		LeaderboardTex[NUM_LEADERBOARD_SCREEN], CreditScreenTex[NUM_CREDIT_SCREEN], CreditVAO, CreditVBO, LeaderboardVAO, LeaderboardVBO,
+		BtnSettingVAO, BtnSettingVBO, BtnVAO, BtnVBO, LogoVAO, LogoVBO, LogoEBO, program, program2;
 	float BtnWidth[NUM_BUTTON], BtnHeigt[NUM_BUTTON], BtnHoverWidth[NUM_BUTTON], 
 		BtnHoverHeight[NUM_BUTTON], LogoWidth[NUM_LOGO], LogoHeight[NUM_LOGO],
 		BtnSettingWidth[NUM_BTN_SETTING], BtnSettingHeight[NUM_BTN_SETTING], BtnSettingHoverWidth[NUM_BTN_SETTING], 
 		BtnSettingHoverHeight[NUM_BTN_SETTING], BtnSettingChoosenWidth[NUM_BTN_SETTING], BtnSettingChoosenHeight[NUM_BTN_SETTING],
-		LeaderboardHeight, LeaderboardWidth;
+		LeaderboardHeight[NUM_LEADERBOARD_SCREEN], LeaderboardWidth[NUM_LEADERBOARD_SCREEN], CreditHeight[NUM_CREDIT_SCREEN], CreditWidth[NUM_CREDIT_SCREEN];
 	int ActiveButtonIndex = 0;
 	Status status;
 

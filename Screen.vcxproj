@@ -135,12 +135,14 @@
     <Image Include="BGM_CHOOSEN.png" />
     <Image Include="BGM_HOVER.png" />
     <Image Include="credit.png" />
+    <Image Include="creditScreen.png" />
     <Image Include="credit_hover.png" />
     <Image Include="exit.png" />
     <Image Include="exit_hover.png" />
     <Image Include="highscore.png" />
     <Image Include="highscore_hover.png" />
     <Image Include="leaderboard.png" />
+    <Image Include="leaderboardScreen.png" />
     <Image Include="leaderboard_hover.png" />
     <Image Include="quit.png" />
     <Image Include="quit_hover.png" />
