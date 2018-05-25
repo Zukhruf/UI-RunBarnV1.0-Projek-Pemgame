@@ -129,11 +129,14 @@
   <ItemGroup>
     <None Include="shader.frag" />
     <None Include="shader.vert" />
+    <None Include="spriteAnim.frag" />
+    <None Include="spriteAnim.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="BGM.png" />
     <Image Include="BGM_CHOOSEN.png" />
     <Image Include="BGM_HOVER.png" />
+    <Image Include="crate.png" />
     <Image Include="credit.png" />
     <Image Include="creditScreen.png" />
     <Image Include="credit_hover.png" />
@@ -141,6 +144,7 @@
     <Image Include="exit_hover.png" />
     <Image Include="highscore.png" />
     <Image Include="highscore_hover.png" />
+    <Image Include="homeranim.png" />
     <Image Include="leaderboard.png" />
     <Image Include="leaderboardScreen.png" />
     <Image Include="leaderboard_hover.png" />

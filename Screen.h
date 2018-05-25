@@ -17,7 +17,7 @@
 using namespace std;
 using namespace glm;
 
-enum class Status { MAIN_MENU, SETTING, LEADERBOARD, CREDIT };
+enum class Status { MAIN_MENU, SETTING, LEADERBOARD, CREDIT, RUN };
 enum class State { RUNNING, EXIT };
 enum class WindowFlag { WINDOWED, FULLSCREEN, EXCLUSIVE_FULLSCREEN, BORDERLESS };
 

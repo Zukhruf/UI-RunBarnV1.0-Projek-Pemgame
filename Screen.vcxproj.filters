@@ -43,6 +43,12 @@
     <None Include="shader.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="spriteAnim.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="spriteAnim.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="credit.png">
@@ -115,6 +121,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="creditScreen.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="homeranim.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="crate.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
