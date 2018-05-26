@@ -127,12 +127,17 @@
     <ClCompile Include="SettingScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="playerSprite.frag" />
+    <None Include="playerSprite.vert" />
     <None Include="shader.frag" />
     <None Include="shader.vert" />
+    <None Include="sprite.frag" />
+    <None Include="sprite.vert" />
     <None Include="spriteAnim.frag" />
     <None Include="spriteAnim.vert" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="background.png" />
     <Image Include="BGM.png" />
     <Image Include="BGM_CHOOSEN.png" />
     <Image Include="BGM_HOVER.png" />

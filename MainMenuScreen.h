@@ -30,7 +30,7 @@ using namespace glm;
 class MainMenuScreen :
 	public Layar::Screen {
 public:
-	float frame_width = 0, frame_height = 0;
+	float frame_width = 0, frame_height = 0, frame_widthPlayer = 0, frame_heightPlayer = 0;
 	MainMenuScreen();
 	~MainMenuScreen();
 	virtual void Init();
@@ -42,24 +42,40 @@ private:
 	GLuint BtnTexture[NUM_BUTTON], BtnHoverTexture[NUM_BUTTON], LogoTexture[NUM_LOGO],
 		BtnSettingTex[NUM_BTN_SETTING], BtnSettingHoverTex[NUM_BTN_SETTING], BtnSettingChoosenTex[NUM_BTN_SETTING],
 		LeaderboardTex[NUM_LEADERBOARD_SCREEN], CreditScreenTex[NUM_CREDIT_SCREEN], CreditVAO, CreditVBO, LeaderboardVAO, LeaderboardVBO,
-		BtnSettingVAO, BtnSettingVBO, BtnVAO, BtnVBO, LogoVAO, LogoVBO, LogoEBO, program, program2,
-		VBOObstacle, VAOObstacle, EBOObstacle, textureObstacle;
+		BtnSettingVAO, BtnSettingVBO, BtnVAO, BtnVBO, LogoVAO, LogoVBO, LogoEBO, program, program2, program3, program4,
+		VBOObstacle, VAOObstacle, EBOObstacle, textureObstacle, VBOPlayer, VAOPlayer, EBOPlayer, texturePlayer,
+		VBOVacuum, VAOVacuum, EBOVacuum, textureVacuum, BGTexture, BGVao, BGVbo, BGEbo;
 	float BtnWidth[NUM_BUTTON], BtnHeigt[NUM_BUTTON], BtnHoverWidth[NUM_BUTTON], 
 		BtnHoverHeight[NUM_BUTTON], LogoWidth[NUM_LOGO], LogoHeight[NUM_LOGO],
 		BtnSettingWidth[NUM_BTN_SETTING], BtnSettingHeight[NUM_BTN_SETTING], BtnSettingHoverWidth[NUM_BTN_SETTING], 
 		BtnSettingHoverHeight[NUM_BTN_SETTING], BtnSettingChoosenWidth[NUM_BTN_SETTING], BtnSettingChoosenHeight[NUM_BTN_SETTING],
 		LeaderboardHeight[NUM_LEADERBOARD_SCREEN], LeaderboardWidth[NUM_LEADERBOARD_SCREEN], CreditHeight[NUM_CREDIT_SCREEN], CreditWidth[NUM_CREDIT_SCREEN],
-		xpos = 0, ypos = 0, frame_dur = 0;
+		BGWidth, BGHeight,
+		xpos = 0, ypos = 0, frame_dur = 0, xposPlayer = 0, yposPlayer = 0, xposVacuum = 0, yposVacuum = 0, gravityPlayer = 0, xVelocityPlayer = 0, yVelocityPlayer = 0, yposGroundPlayer = 0, oldxposPlayer = 0, oldyposPlayer = 0;
 	int ActiveButtonIndex = 0;
-	unsigned int frame_idx = 0;
+	unsigned int frame_idx = 0, flip = 0, frame_idxPlayer = 0;
+	bool walk_anim = false, onGround = true;
+	bool IsCollided(float x1, float y1, float width1, float height1, float x2, float y2, float width2, float height2);
 	Status status;
 
 	//Build Character
 	void BuildObstacle();
 	void DrawObstacle();
 
+	//BuildPlayer
+	void BuildPlayer();
+	void DrawPlayer();
+
+	//BuildVacuum
+	void BuildVacuum();
+	void DrawVacuum();
+
+	void UpdateObstacleSpriteAnim(float deltaTime);
+	void ControlObstacleSprite(float deltaTime);
 	void UpdatePlayerSpriteAnim(float deltaTime);
 	void ControlPlayerSprite(float deltaTime);
+	void UpdateVacuumSpriteAnim(float deltaTime);
+	void ControlVacuumSprite(float deltaTime);
 
 	//Build Main Menu Screen
 	void BuildLogo();
@@ -79,6 +95,10 @@ private:
 	//Build Credit Screen
 	void BuildCredit();
 	void DrawCredit();
+
+	//Build Background
+	void BuildBG();
+	void DrawBG();
 };
 
 #endif

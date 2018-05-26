@@ -49,6 +49,18 @@
     <None Include="spriteAnim.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="playerSprite.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="playerSprite.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="sprite.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="sprite.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="credit.png">
@@ -127,6 +139,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="crate.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="background.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

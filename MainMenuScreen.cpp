@@ -16,6 +16,8 @@ void MainMenuScreen::Init()
 	BuildBtnSetting();
 	BuildLeaderboard();
 	BuildCredit();
+	BuildPlayer();
+	BuildBG();
 	BuildObstacle();
 	this->program = BuildShader("shader.vert", "shader.frag");
 	InputMapping("SelectButton", SDLK_RETURN);
@@ -72,6 +74,9 @@ void MainMenuScreen::Update(float deltaTime)
 	if (Status::RUN == status)
 	{
 		UpdatePlayerSpriteAnim(deltaTime);
+		UpdateObstacleSpriteAnim(deltaTime);
+
+		ControlObstacleSprite(deltaTime);
 		ControlPlayerSprite(deltaTime);
 		if (IsKeyUp("BackButton")) {
 			this->status = Status::MAIN_MENU;
@@ -145,10 +150,21 @@ void MainMenuScreen::Render()
 	}
 	if (Status::RUN == status)
 	{
+		DrawBG();
+		mat4 projection4;
+		projection4 = ortho(0.0f, static_cast<GLfloat>(GetScreenWidth()), static_cast<GLfloat>(GetScreenHeight()), 0.0f, -1.0f, 1.0f);
+		glUniformMatrix4fv(glGetUniformLocation(this->program4, "projection"), 1, GL_FALSE, value_ptr(projection4));
+
 		DrawObstacle();
 		mat4 projection2;
 		projection2 = ortho(0.0f, static_cast<GLfloat>(GetScreenWidth()), static_cast<GLfloat>(GetScreenHeight()), 0.0f, -1.0f, 1.0f);
 		glUniformMatrix4fv(glGetUniformLocation(this->program2, "projection"), 1, GL_FALSE, value_ptr(projection2));
+
+		DrawPlayer();
+		mat4 projection3;
+		projection3 = ortho(0.0f, static_cast<GLfloat>(GetScreenWidth()), static_cast<GLfloat>(GetScreenHeight()), 0.0f, -1.0f, 1.0f);
+		glUniformMatrix4fv(glGetUniformLocation(this->program3, "projection"), 1, GL_FALSE, value_ptr(projection3));
+
 	}
 	if (Status::SETTING == status)
 	{
@@ -162,6 +178,11 @@ void MainMenuScreen::Render()
 	{
 		DrawCredit();
 	}
+}
+
+bool MainMenuScreen::IsCollided(float x1, float y1, float width1, float height1, float x2, float y2, float width2, float height2)
+{
+	return (x1 < x2 + width2 && x1 + width1 > x2 && y1 < y2 + height2 && y1 + height1 > y2);
 }
 
 void MainMenuScreen::BuildObstacle()
@@ -261,7 +282,126 @@ void MainMenuScreen::DrawObstacle()
 	glDisable(GL_BLEND);
 }
 
-void MainMenuScreen::UpdatePlayerSpriteAnim(float deltaTime)
+void MainMenuScreen::BuildPlayer()
+{
+	this->program3 = BuildShader("playerSprite.vert", "playerSprite.frag");
+	UseShader(this->program3);
+	glUniform1f(glGetUniformLocation(this->program3, "n"), 1.0f / NUM_FRAMES);
+
+	// Load and create a texture 
+	glGenTextures(1, &texturePlayer);
+	glBindTexture(GL_TEXTURE_2D, texturePlayer); // All upcoming GL_TEXTURE_2D operations now have effect on our texture object
+
+												 // Set texture filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	// Load, create texture 
+	int widthPlayer, heightPlayer;
+	unsigned char* image = SOIL_load_image("homeranim.png", &widthPlayer, &heightPlayer, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthPlayer, heightPlayer, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+
+									 // Set up vertex data (and buffer(s)) and attribute pointers
+	frame_widthPlayer = ((float)widthPlayer) / NUM_FRAMES;
+	frame_heightPlayer = (float)heightPlayer;
+	GLfloat vertices[] = {
+		// Positions   // Colors           // Texture Coords
+		1,  1, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // Bottom Right
+		1,  0, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // Top Right
+		0,  0, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // Top Left
+		0,  1, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // Bottom Left 
+	};
+
+	GLuint indices[] = {  // Note that we start from 0!
+		0, 3, 2, 1
+	};
+
+	glGenVertexArrays(1, &VAOPlayer);
+	glGenBuffers(1, &VBOPlayer);
+	glGenBuffers(1, &EBOPlayer);
+
+	glBindVertexArray(VAOPlayer);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBOPlayer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOPlayer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
+	glEnableVertexAttribArray(0);
+	// Color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+	// TexCoord attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+
+	glBindVertexArray(0); // Unbind VAO
+
+						  // Set orthographic projection
+	mat4 projection3;
+	projection3 = ortho(0.0f, static_cast<GLfloat>(GetScreenWidth()), static_cast<GLfloat>(GetScreenHeight()), 0.0f, -1.0f, 1.0f);
+	UseShader(this->program3);
+	glUniformMatrix4fv(glGetUniformLocation(this->program3, "projection"), 1, GL_FALSE, value_ptr(projection3));
+	xposPlayer = (GetScreenWidth() - frame_widthPlayer) / 2;
+	yposGroundPlayer = GetScreenHeight() - frame_heightPlayer;
+	yposPlayer = yposGroundPlayer;
+	gravityPlayer = 0.05f;
+	xVelocityPlayer = 0.1f;
+
+	// Add input mapping
+	// to offer input change flexibility you can save the input mapping configuration in a configuration file (non-hard code) !
+	InputMapping("Move Right", SDLK_RIGHT);
+	InputMapping("Move Left", SDLK_LEFT);
+	InputMapping("Move Right", SDLK_d);
+	InputMapping("Move Left", SDLK_a);
+	InputMapping("Move Right", SDL_BUTTON_RIGHT);
+	InputMapping("Move Left", SDL_BUTTON_LEFT);
+	InputMapping("Jump", SDLK_SPACE);
+}
+
+void MainMenuScreen::DrawPlayer()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Bind Textures using texture units
+	glActiveTexture(GL_TEXTURE11);
+	glBindTexture(GL_TEXTURE_2D, texturePlayer);
+	UseShader(this->program3);
+	glUniform1i(glGetUniformLocation(this->program3, "ourTexture"), 11);
+
+	// set flip
+	glUniform1i(glGetUniformLocation(this->program3, "flip"), flip);
+	mat4 model;
+	// Translate sprite along x-axis
+	model = translate(model, vec3(xposPlayer, yposPlayer, 0.0f));
+	// Scale sprite 
+	model = scale(model, vec3(frame_widthPlayer, frame_heightPlayer, 1));
+	glUniformMatrix4fv(glGetUniformLocation(this->program3, "model"), 1, GL_FALSE, value_ptr(model));
+
+	// Draw sprite
+	glBindVertexArray(VAOPlayer);
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+	glDisable(GL_BLEND);
+}
+
+void MainMenuScreen::BuildVacuum()
+{
+}
+
+void MainMenuScreen::DrawVacuum()
+{
+}
+
+void MainMenuScreen::UpdateObstacleSpriteAnim(float deltaTime)
 {
 	// Update animation
 	frame_dur += deltaTime;
@@ -277,7 +417,7 @@ void MainMenuScreen::UpdatePlayerSpriteAnim(float deltaTime)
 	}
 }
 
-void MainMenuScreen::ControlPlayerSprite(float deltaTime)
+void MainMenuScreen::ControlObstacleSprite(float deltaTime)
 {
 	xpos += deltaTime * -0.3f;
 
@@ -302,6 +442,84 @@ void MainMenuScreen::ControlPlayerSprite(float deltaTime)
 
 	UseShader(this->program2);
 	glUniformMatrix4fv(glGetUniformLocation(this->program2, "model"), 1, GL_FALSE, value_ptr(model));
+}
+
+void MainMenuScreen::UpdatePlayerSpriteAnim(float deltaTime)
+{
+	// Update animation
+	frame_dur += deltaTime;
+
+	if (frame_dur > FRAME_DUR) {
+		frame_dur = 0;
+		if (frame_idx == NUM_FRAMES - 1) frame_idx = 0;  else frame_idx++;
+
+		// Pass frameIndex to shader
+		GLint location = glGetUniformLocation(this->program3, "frameIndex");
+		UseShader(this->program3);
+		glUniform1i(location, frame_idx);
+	}
+}
+
+void MainMenuScreen::ControlPlayerSprite(float deltaTime)
+{
+	walk_anim = false;
+	oldxposPlayer = xposPlayer;
+	oldyposPlayer = yposPlayer;
+	if (!IsKeyDown("Move Right")) {
+		xposPlayer -= deltaTime * xVelocityPlayer * 2;
+		flip = 0;
+		walk_anim = true;
+	}
+
+	if (IsKeyDown("Move Right")) {
+		if (xposPlayer >= GetScreenWidth() / 2) {
+			xposPlayer = GetScreenWidth() / 2;
+		}
+		xposPlayer += deltaTime * xVelocityPlayer;
+		flip = 0;
+		walk_anim = true;
+	}
+
+	if (IsKeyDown("Move Left")) {
+		xposPlayer -= deltaTime * xVelocityPlayer;
+		flip = 1;
+		walk_anim = true;
+	}
+
+	if (IsKeyDown("Jump")) {
+		if (onGround) {
+			yVelocityPlayer = -5.0f;
+			onGround = false;
+		}
+	}
+
+	if (IsKeyUp("Jump")) {
+		if (yVelocityPlayer < -6.0f) {
+			yVelocityPlayer = -6.0f;
+		}
+	}
+
+	yVelocityPlayer += gravityPlayer * deltaTime;
+	yposPlayer += deltaTime * yVelocityPlayer;
+
+	if (yposPlayer > yposGroundPlayer) {
+		yposPlayer = yposGroundPlayer;
+		yVelocityPlayer = 0;
+		onGround = true;
+	}
+
+	//check collision between bart and crate
+	if (IsCollided(xpos, ypos, frame_width, frame_height, xposPlayer, yposPlayer, frame_widthPlayer, frame_heightPlayer)) {
+		xposPlayer = 100;
+	}
+}
+
+void MainMenuScreen::UpdateVacuumSpriteAnim(float deltaTime)
+{
+}
+
+void MainMenuScreen::ControlVacuumSprite(float deltaTime)
+{
 }
 
 void MainMenuScreen::BuildLogo()
@@ -748,6 +966,93 @@ void MainMenuScreen::DrawCredit()
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_BLEND);
+}
+
+void MainMenuScreen::BuildBG()
+{
+	this->program4 = BuildShader("sprite.vert", "sprite.frag");
+	UseShader(this->program4);
+
+	// Load and create a texture 
+	glGenTextures(1, &BGTexture);
+	glBindTexture(GL_TEXTURE_2D, BGTexture); // All upcoming GL_TEXTURE_2D operations now have effect on our texture object
+
+										   // Set texture filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// Load, create texture and generate mipmaps
+	int width, height;
+
+	unsigned char* image = SOIL_load_image("background.png", &width, &height, 0, SOIL_LOAD_RGBA);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+
+									 // Set up vertex data (and buffer(s)) and attribute pointers
+	BGWidth = (float)width;
+	BGHeight = (float)height;
+	GLfloat vertices[] = {
+		// Positions   // Colors           // Texture Coords
+		BGWidth,  BGHeight, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // Top Right
+		BGWidth, -BGHeight, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // Bottom Right
+		-BGWidth, -BGHeight, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // Bottom Left
+		-BGWidth,  BGHeight, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // Top Left 
+	};
+
+	GLuint indices[] = {  // Note that we start from 0!
+		0, 3, 2, 1
+	};
+
+	glGenVertexArrays(1, &BGVao);
+	glGenBuffers(1, &BGVbo);
+	glGenBuffers(1, &BGEbo);
+
+	glBindVertexArray(BGVao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, BGVbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, BGEbo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(0);
+	// Color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+	// TexCoord attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+
+	glBindVertexArray(0); // Unbind VAO
+}
+
+void MainMenuScreen::DrawBG()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Bind Textures using texture units
+	glActiveTexture(GL_TEXTURE12);
+	glBindTexture(GL_TEXTURE_2D, BGTexture);
+
+	// Activate shader
+	UseShader(this->program4);
+
+	mat4 model2;
+	// Scale sprite 
+	model2 = scale(model2, vec3(BGWidth, BGHeight, 1));
+	glUniform1i(glGetUniformLocation(this->program4, "ourTexture"), 12);
+
+	// Draw sprite
+	glBindVertexArray(BGVao);
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 	glDisable(GL_BLEND);
 }
 
