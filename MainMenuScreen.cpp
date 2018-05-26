@@ -984,7 +984,7 @@ void MainMenuScreen::BuildBG()
 	// Load, create texture and generate mipmaps
 	int width, height;
 
-	unsigned char* image = SOIL_load_image("background.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	unsigned char* image = SOIL_load_image("background2.png", &width, &height, 0, SOIL_LOAD_RGBA);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 	SOIL_free_image_data(image);
@@ -992,7 +992,7 @@ void MainMenuScreen::BuildBG()
 
 									 // Set up vertex data (and buffer(s)) and attribute pointers
 									 // Set up vertex data (and buffer(s)) and attribute pointers
-	float x = width * 0.2f / height;
+	float x = width * 0.8f / height;
 	float y = 1.0f;
 	GLfloat vertices[] = {
 		// Positions   // Colors           // Texture Coords

@@ -144,5 +144,11 @@
     <Image Include="background.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Vacuum cleaner.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="background2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

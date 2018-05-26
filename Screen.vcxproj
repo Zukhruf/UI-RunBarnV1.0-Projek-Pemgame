@@ -138,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="background.png" />
+    <Image Include="background2.png" />
     <Image Include="BGM.png" />
     <Image Include="BGM_CHOOSEN.png" />
     <Image Include="BGM_HOVER.png" />
@@ -164,6 +165,7 @@
     <Image Include="SFX.png" />
     <Image Include="SFX_CHOOSEN.png" />
     <Image Include="SFX_HOVER.png" />
+    <Image Include="Vacuum cleaner.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
