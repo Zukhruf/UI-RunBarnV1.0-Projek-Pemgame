@@ -991,14 +991,15 @@ void MainMenuScreen::BuildBG()
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 
 									 // Set up vertex data (and buffer(s)) and attribute pointers
-	BGWidth = (float)width;
-	BGHeight = (float)height;
+									 // Set up vertex data (and buffer(s)) and attribute pointers
+	float x = width * 0.2f / height;
+	float y = 1.0f;
 	GLfloat vertices[] = {
 		// Positions   // Colors           // Texture Coords
-		BGWidth,  BGHeight, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // Top Right
-		BGWidth, -BGHeight, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // Bottom Right
-		-BGWidth, -BGHeight, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // Bottom Left
-		-BGWidth,  BGHeight, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // Top Left 
+		x,  y, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // Top Right
+		x, -y, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // Bottom Right
+		-x, -y, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // Bottom Left
+		-x,  y, 0.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // Top Left 
 	};
 
 	GLuint indices[] = {  // Note that we start from 0!
@@ -1041,10 +1042,6 @@ void MainMenuScreen::DrawBG()
 
 	// Activate shader
 	UseShader(this->program4);
-
-	mat4 model2;
-	// Scale sprite 
-	model2 = scale(model2, vec3(BGWidth, BGHeight, 1));
 	glUniform1i(glGetUniformLocation(this->program4, "ourTexture"), 12);
 
 	// Draw sprite
