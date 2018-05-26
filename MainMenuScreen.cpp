@@ -6,6 +6,7 @@ MainMenuScreen::MainMenuScreen()
 
 MainMenuScreen::~MainMenuScreen()
 {
+<<<<<<< HEAD
 	if (Mix_Playing(sfx_channel) == 0) {
 		Mix_FreeChunk(sound);
 	}
@@ -15,6 +16,15 @@ MainMenuScreen::~MainMenuScreen()
 	}
 	Mix_CloseAudio();
 
+=======
+	if(Mix_Playing(sfx_channel) == 0) {
+		Mix_FreeChunk(sound);
+	}
+	if (music != NULL) {
+		Mix_FreeMusic(music);
+	}
+	Mix_CloseAudio();
+>>>>>>> 1b26e273751b1c031dc7dc8e61dc3232769668c0
 }
 
 void MainMenuScreen::Init()
@@ -43,6 +53,8 @@ void MainMenuScreen::DeInit()
 
 void MainMenuScreen::Update(float deltaTime)
 {
+	
+
 	if (Status::MAIN_MENU == status)
 	{
 		//------MUSIC PLAYING-------
@@ -61,14 +73,21 @@ void MainMenuScreen::Update(float deltaTime)
 				if (sfx_channel == -1) {
 					Err("Unable to play WAV file: " + string(Mix_GetError()));
 				}
+<<<<<<< HEAD
 
 				//Fade out music
 				Mix_FadeOutMusic(3000);
 				SDL_Delay(150);
 
 				this->status = Status::RUN;
+=======
+>>>>>>> 1b26e273751b1c031dc7dc8e61dc3232769668c0
 			}
+
 			if (ActiveButtonIndex == 1) {
+				//Fade out music
+				Mix_FadeOutMusic(3000);
+				SDL_Delay(150);
 				this->status = Status::LEADERBOARD;
 			}
 			if (ActiveButtonIndex == 2) {
@@ -92,7 +111,10 @@ void MainMenuScreen::Update(float deltaTime)
 				if (sfx_channel == -1) {
 					Err("Unable to play WAV file: " + string(Mix_GetError()));
 				}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1b26e273751b1c031dc7dc8e61dc3232769668c0
 				SDL_Delay(150);
 			}
 		}
@@ -106,7 +128,10 @@ void MainMenuScreen::Update(float deltaTime)
 				if (sfx_channel == -1) {
 					Err("Unable to play WAV file: " + string(Mix_GetError()));
 				}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1b26e273751b1c031dc7dc8e61dc3232769668c0
 				SDL_Delay(150);
 			}
 		}
@@ -262,6 +287,7 @@ void MainMenuScreen::Render()
 	}
 }
 
+<<<<<<< HEAD
 void MainMenuScreen::BuildObstacle()
 {
 	this->program2 = BuildShader("spriteAnim.vert", "spriteAnim.frag");
@@ -404,6 +430,47 @@ void MainMenuScreen::ControlPlayerSprite(float deltaTime)
 
 
 //-------------MAIN MENU UI------------------
+=======
+//------------------AUDIO--------------------
+void MainMenuScreen::InitAudio() {
+	int flags = MIX_INIT_MP3 | MIX_INIT_FLAC | MIX_INIT_OGG;
+	if (flags != Mix_Init(flags)) {
+		Err("Unable to initialize mixer: " + string(Mix_GetError()));
+	}
+
+	int audio_rate = 22050; Uint16 audio_format = AUDIO_S16SYS; int audio_channels = 2; int audio_buffers = 4096;
+
+	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
+		Err("Unable to initialize audio: " + string(Mix_GetError()));
+	}
+
+
+	music = Mix_LoadMUS("BGM_Menu.wav");
+	if (music == NULL) {
+		Err("Unable to load Music file: " + string(Mix_GetError()));
+	}
+
+	sound = Mix_LoadWAV("SFX_Clik.wav");
+	if (sound == NULL) {
+		Err("Unable to load WAV file: " + string(Mix_GetError()));
+	}
+
+	sfx_klik = Mix_LoadWAV("SFX_Klik.wav");
+	if (sound == NULL) {
+		Err("Unable to load WAV file: " + string(Mix_GetError()));
+	}
+
+}
+
+/*void MainMenuScreen::AddInputs() {
+	InputMapping("Quit", SDLK_ESCAPE);
+	InputMapping("BGM", SDLK_m);
+	InputMapping("SFX", SDLK_s);
+}*/
+
+
+//------------------All UI----------------
+>>>>>>> 1b26e273751b1c031dc7dc8e61dc3232769668c0
 void MainMenuScreen::BuildLogo()
 {
 	// Load and create a texture 

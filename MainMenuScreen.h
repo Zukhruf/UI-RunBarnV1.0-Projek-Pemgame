@@ -86,9 +86,14 @@ private:
 
 	//Build Sound
 	Mix_Chunk *sound = NULL, *sfx_klik = NULL;
+<<<<<<< HEAD
 	Mix_Music *music = NULL, *music_vacuum = NULL;
 	int sfx_channel = -1;
 
+=======
+	Mix_Music *music = NULL;
+	int sfx_channel = -1;
+>>>>>>> 1b26e273751b1c031dc7dc8e61dc3232769668c0
 };
 
 #endif
