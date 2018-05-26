@@ -38,6 +38,10 @@ public:
 	virtual void Update(float deltaTime);
 	virtual void Render();
 
+	//Init Sound
+	void InitAudio();
+	void AddInputs();
+
 private:
 	GLuint BtnTexture[NUM_BUTTON], BtnHoverTexture[NUM_BUTTON], LogoTexture[NUM_LOGO],
 		BtnSettingTex[NUM_BTN_SETTING], BtnSettingHoverTex[NUM_BTN_SETTING], BtnSettingChoosenTex[NUM_BTN_SETTING],
@@ -79,6 +83,12 @@ private:
 	//Build Credit Screen
 	void BuildCredit();
 	void DrawCredit();
+
+	//Build Sound
+	Mix_Chunk *sound = NULL, *sfx_klik = NULL;
+	Mix_Music *music = NULL, *music_vacuum = NULL;
+	int sfx_channel = -1;
+
 };
 
 #endif
